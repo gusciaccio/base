@@ -1,0 +1,355 @@
+{include="header"}
+
+<ul class="nav nav-tabs">
+   <li role="presentation"{if="$fsc->pestanya=='stats'"} class="active"{/if}>
+      <a href="{$fsc->url()}">
+         <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Estadísticas</span>
+      </a>
+   </li>
+   <li role="presentation"{if="$fsc->pestanya=='stock'"} class="active"{/if}>
+      <a href="{$fsc->url()}&tab=stock">
+         <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Stock</span>
+      </a>
+   </li>
+   <li role="presentation"{if="$fsc->pestanya=='inventario'"} class="active"{/if}>
+      <a href="{$fsc->url()}&tab=inventario">
+         <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Inventario</span>
+      </a>
+   </li>
+   <li role="presentation"{if="$fsc->pestanya=='search'"} class="active"{/if}>
+      <a href="{$fsc->url()}&tab=search">
+         <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+      </a>
+   </li>
+</ul>
+
+{if="$fsc->pestanya=='stats'"}
+<div class="container-fluid" style="margin-top: 10px; margin-bottom: 20px;">
+   <div class="row">
+      <div class="col-md-12">
+         <p>
+            Hay un total de <b>{$fsc->show_numero($fsc->stats['total'], 0)}</b> artículos,
+            <b>{$fsc->show_numero($fsc->stats['con_stock'], 0)}</b> de ellos tienen stock,
+            <b>{$fsc->show_numero($fsc->stats['publicos'], 0)}</b> son públicos
+            y <b>{$fsc->show_numero($fsc->stats['bloqueados'], 0)}</b> están bloqueados.
+            La última actualización de precio de un artículo es del <b>{$fsc->stats['factualizado']}</b>.
+         </p>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-md-12">
+         <div class="panel panel-info">
+            <div class="panel-heading">
+               <h3 class="panel-title">Top ventas (unidades)</h3>
+            </div>
+            <div class="panel-body">
+               <div class="container-fluid">
+                  <div class="row">
+                     {loop="$fsc->top_ventas"}
+                     <div class="col-sm-4">
+                        <a href="{$value.0->url()}">{$value.0->referencia}</a>
+                        {$value.0->descripcion}
+                        <span class="badge">{$value.1}</span>
+                     </div>
+                     {else}
+                     <div class="col-sm-12">Sin resultados.</div>
+                     {/loop}
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-md-12">
+         <div class="panel panel-warning">
+            <div class="panel-heading">
+               <h3 class="panel-title">Top artículos con stock aun no vendidos este año</h3>
+            </div>
+            <div class="panel-body">
+               <div class="container-fluid">
+                  <div class="row">
+                     {loop="$fsc->sin_vender"}
+                     <div class="col-sm-4">
+                        <a href="{$value->url()}">{$value->referencia}</a>
+                        {$value->descripcion}
+                        <span class="badge">{$value->stockfis}</span>
+                     </div>
+                     {else}
+                     <div class="col-sm-12">Sin resultados.</div>
+                     {/loop}
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-md-12">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Top compras (Unidades)</h3>
+            </div>
+            <div class="panel-body">
+               <div class="container-fluid">
+                  <div class="row">
+                     {loop="$fsc->top_compras"}
+                     <div class="col-sm-4">
+                        <a href="{$value.0->url()}">{$value.0->referencia}</a>
+                        {$value.0->descripcion}
+                        <span class="badge">{$value.1}</span>
+                     </div>
+                     {else}
+                     <div class="col-sm-12">Sin resultados.</div>
+                     {/loop}
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-md-12">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Búsquedas de artículos</h3>
+            </div>
+            <div class="panel-body">
+               <div class="container-fluid">
+                  <div class="row">
+                     {loop="$fsc->articulo->get_search_tags()"}
+                     <div class="col-lg-3 col-md-3 col-sm-3">{$value.tag} ({$value.count})</div>
+                     {else}
+                     <div class="col-lg-12 col-md-12 col-sm-12">Ninguna búsqueda realizada.</div>
+                     {/loop}
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{elseif="$fsc->pestanya=='stock'"}
+<div class="container-fluid" style="margin-top: 15px; margin-bottom: 10px;">
+   <div class="row">
+      <div class="col-sm-9">
+         <div class="btn-group" role="group" aria-label="...">
+            <a href="{$fsc->url()}&tab=stock" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='todo'"} active{/if}">Todo</a>
+            <a href="{$fsc->url()}&tab=stock&tipo=min" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='min'"} active{/if}">Bajo mínimos</a>
+            <a href="{$fsc->url()}&tab=stock&tipo=max" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='max'"} active{/if}">Excesos</a>
+            <a href="{$fsc->url()}&tab=stock&tipo=reg" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='reg'"} active{/if}" title="Regularizaciones de stock">
+               <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
+            </a>
+         </div>
+      </div>
+      <div class="col-sm-3 text-right">
+         {if="$fsc->tipo_stock!='reg'"}
+         <a href="{$fsc->url()}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE" class="btn btn-sm btn-default">
+            <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> &nbsp; Descargar
+         </a>
+         {/if}
+      </div>
+   </div>
+</div>
+<div class="table-responsive">
+   {if="$fsc->tipo_stock=='reg'"}
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left">Almacén</th>
+            <th class="text-left">Artículo</th>
+            <th class="text-right">Cant. inicial</th>
+            <th class="text-right">Cant. final</th>
+            <th class="text-left">Usuario</th>
+            <th class="text-left">Motivo</th>
+            <th class="text-right">Fecha</th>
+            <th class="text-right">Hora</th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
+      <tr class="clickableRow{if="intval($value['cantidadfin'])<intval($value['cantidadini'])"} bg-danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
+         <td>{$value['codalmacen']}</td>
+         <td><a href="index.php?page=ventas_articulo&ref={$value['referencia']}">{$value['referencia']}</a> {$value['descripcion']}</td>
+         <td class="text-right">{$value['cantidadini']}</td>
+         <td class="text-right">{$value['cantidadfin']}</td>
+         <td>{$value['nick']}</td>
+         <td>{$value['motivo']}</td>
+         <td class="text-right">{$value['fecha']}</td>
+         <td class="text-right">{$value['hora']}</td>
+      </tr>
+      {else}
+      <tr class="bg-warning">
+         <td colspan="8">Sin resultados.</td>
+      </tr>
+      {/loop}
+   </table>
+   {else}
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left">Almacén</th>
+            <th class="text-left">Artículo</th>
+            <th class="text-right">Stock</th>
+            <th class="text-right">Mínimo</th>
+            <th class="text-right">Máximo</th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
+      <tr class="clickableRow{if="intval($value['cantidad'])<intval($value['stockmin'])"} bg-danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
+         <td>{$value['codalmacen']}</td>
+         <td><a href="index.php?page=ventas_articulo&ref={$value['referencia']}">{$value['referencia']}</a> {$value['descripcion']}</td>
+         <td class="text-right">{$value['cantidad']}</td>
+         <td class="text-right">{$value['stockmin']}</td>
+         <td class="text-right">{$value['stockmax']}</td>
+      </tr>
+      {else}
+      <tr class="bg-warning">
+         <td colspan="5">Sin resultados.</td>
+      </tr>
+      {/loop}
+   </table>
+   {/if}
+</div>
+
+<ul class="pager" id="ul_paginador">
+   {if="$fsc->anterior_url()!=''"}
+   <li class="previous">
+      <a href="{$fsc->anterior_url()}">
+         <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
+      </a>
+   </li>
+   {/if}
+   
+   {if="$fsc->siguiente_url()!=''"}
+   <li class="next">
+      <a href="{$fsc->siguiente_url()}">
+         Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
+      </a>
+   </li>
+   {/if}
+</ul>
+{elseif="$fsc->pestanya=='inventario'"}
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left">Almacén</th>
+            <th class="text-left">Artículo</th>
+            <th class="text-right">Cant. inicial</th>
+            <th class="text-right">Cant. final</th>
+            <th class="text-left">Usuario</th>
+            <th class="text-left">Motivo</th>
+            <th class="text-right">Fecha</th>
+            <th class="text-right">Hora</th>
+         </tr>
+      </thead>
+	</table>
+
+{elseif="$fsc->pestanya=='search'"}
+<script type="text/javascript">
+   $(document).ready(function() {
+      $("#ac_referencia").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_referencia',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if(document.f_informe_articulo.referencia.value != suggestion.data)
+               {
+                  document.f_informe_articulo.referencia.value = suggestion.data;
+               }
+            }
+         }
+      });
+   });
+</script>
+
+<form name="f_informe_articulo" action="{$fsc->url()}&tab=search" method="post" class="form">
+   <input type="hidden" name="referencia" value="{$fsc->referencia}"/>
+   <div class="container-fluid" style="margin-top: 15px;">
+      <div class="row">
+         <div class="col-sm-3">
+            <div class="form-group">
+               Referencia:
+               <input class="form-control" type="text" name="ac_referencia" value="{$fsc->referencia}" id="ac_referencia" maxlength="18" placeholder="referencia" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-sm-3">
+            <div class="form-group">
+               Desde:
+               <input class="form-control datepicker" type="text" name="desde" value="{$fsc->desde}"/>
+            </div>
+         </div>
+         <div class="col-sm-3">
+            <div class="form-group">
+               Hasta:
+               <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}"/>
+            </div>
+         </div>
+         <div class="col-sm-3">
+            <div class="form-group">
+               Explorar:
+               <select name="documento" class="form-control" onchange="this.form.submit();">
+                  <option value="facturascli"{if="$fsc->documento=='facturascli'"} selected="selected"{/if}>Facturas de venta</option>
+                  <option value="facturasprov"{if="$fsc->documento=='facturasprov'"} selected="selected"{/if}>Facturas de compra</option>
+               </select>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-12">
+            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Mostrar
+            </button>
+         </div>
+      </div>
+   </div>
+   {if="$fsc->resultados"}
+   <br/>
+   <div class="table-responsive">
+      <table class="table table-hover">
+         <thead>
+            <tr>
+               <th>Fecha</th>
+               <th>Factura</th>
+               <th>Nombre</th>
+               <th>Empleado</th>
+               <th class="text-right">Cantidad</th>
+               <th class="text-right">Precio</th>
+               <th class="text-right">Dto.</th>
+               <th class="text-right">Neto</th>
+               <th class="text-right">Total</th>
+            </tr>
+         </thead>
+         <!--{$total=0}-->
+         <!--{$cantidad=0}-->
+         {loop="$fsc->resultados"}
+         <tr>
+            <td>{$value['fecha']}</td>
+            <td><a href="{$value['url']}">{$value['codigo']}</a></td>
+            <td>{$value['nombre']}</td>
+            <td>{$value['agente']}</td>
+            <td class="text-right">{$value['cantidad']}</td>
+            <td class="text-right">{$fsc->show_precio($value['pvpunitario'])}</td>
+            <td class="text-right">{$fsc->show_numero($value['dtopor'])} %</td>
+            <td class="text-right">{$fsc->show_precio($value['pvptotal'])}</td>
+            <td class="text-right">
+               {$fsc->show_precio($value['total'])}
+               <!--{$total=$total+$value['total']}-->
+               <!--{$cantidad=$cantidad+$value['cantidad']}-->
+            </td>
+         </tr>
+         {/loop}
+         <tr>
+            <td colspan="5" class="text-right"><b>{$cantidad}</b></td>
+            <td colspan="4" class="text-right"><b>{$fsc->show_precio($total)}</b></td>
+         </tr>
+      </table>
+   </div>
+   {/if}
+</form>
+{/if}
+
+{include="footer"}

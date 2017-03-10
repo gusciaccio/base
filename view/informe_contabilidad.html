@@ -1,0 +1,310 @@
+{include="header"}
+
+<script type="text/javascript" src="plugins/facturacion_base/view/js/calendario_one.js"></script>
+
+<script type="text/javascript">
+      
+   		$(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+     
+</script>
+
+
+<div class="container-fluid" style="margin-top: 10px;">
+   <div class="row">
+      <div class="col-sm-6 col-xs-6">
+         <div class="btn-group hidden-xs">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+            {if="$fsc->page->is_default()"}
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {else}
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {/if}
+         </div>
+         <div class="btn-group">
+            {loop="$fsc->extensions"}
+               {if="$value->type=='button'"}
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+               {/if}
+            {/loop}
+         </div>
+      </div>
+      <div class="col-sm-6 col-xs-6 text-right">
+         <h2 style="margin-top: 0px;">Informes contables</h2>
+      </div>
+   </div>
+</div>
+
+<div class="panel-group" id="accordion" style="margin: 5px;">
+   {loop="$fsc->ejercicio->all()"}
+   <div class="panel panel-default">
+      <div class="panel-heading">
+         <h3 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse_{$counter}">Ejercicio {$value->nombre}</a>
+         </h3>
+      </div>
+      <div id='collapse_{$counter}' class='panel-collapse collapse{if="$counter==0"} in{/if}'>
+         <div class="panel-body">
+            <div class="container-fluid">
+               <div class="row">                 
+                  <div class="col-sm-3">
+                     {if="$fsc->existe_libro_inventarios($value->codejercicio)"}
+                     <a href="tmp/{#FS_TMP_NAME#}inventarios_balances/{$value->codejercicio}.pdf" target="_blank">
+                        <span class="glyphicon glyphicon-book" aria-hidden="true"></span> Libro de inventarios y balances
+                     </a>
+                     {else}
+                     <a href="#"><s>Libro de inventarios y balances</s></a>
+                     {/if}
+                  </div>
+ 
+               </div>
+			   <div class="col-sm-3">
+                     <a href="{$fsc->url()}&plan=1&eje={$value->codejercicio}" target="_blank">
+                        <span class="glyphicon glyphicon-book" aria-hidden="true"></span> Plan de Cuentas
+                     </a>
+                  </div>
+               </div>
+			   
+			<div class="row">
+                  <div class="col-sm-12">
+                     <h3>Libro Diario:</h3>
+                  </div>
+               </div>   
+			<div class="row">
+                  <form name="inf_diario"  action="{$fsc->url()}" method="post" target="_blank" class="form">
+                     <input type="hidden" name="codejercicio" value="{$value->codejercicio}"/>
+					 <input type="hidden" name="libro_diario" value="1"/>
+					 <input type="hidden" name="{$value->codejercicio}" id="{$value->codejercicio}" value="1"/>
+                     <div class="col-sm-2">
+                        <div class="form-group">
+                           Desde:
+                           <input type="text" name="desde" value="{$value->fechainicio}" onClick="blur()" class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" maxlength="10"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-2">
+                        <div class="form-group">
+                           Hasta:
+                           <input type="text" name="hasta" value="{$value->fechafin}" onClick="blur()" class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" maxlength="10"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-2">
+                        <br/>
+                        <button type="submit" class="btn btn-sm btn-primary">
+                           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp; Mostrar
+                        </button>
+					 </div>
+                  </form>
+             </div>
+			 
+			 <div class="row">
+                  <form name="inf_diario"  action="{$fsc->url()}" method="post" target="_blank" class="form">
+                     <input type="hidden" name="codejercicio" value="{$value->codejercicio}"/>
+					 <input type="hidden" name="libro_diario" value="2"/>
+					 <input type="hidden" name="{$value->codejercicio}" id="{$value->codejercicio}" value="1"/>
+                     <div class="col-sm-2">
+                        <div class="form-group">
+                           Desde:
+                           <input type="text" name="desde" value="{$value->fechainicio}" onClick="blur()" class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" maxlength="10"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-2">
+                        <div class="form-group">
+                           Hasta:
+                           <input type="text" name="hasta" value="{$value->fechafin}" onClick="blur()" class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" maxlength="10"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-2">
+                        <br/>
+                        <button type="submit" class="btn btn-sm btn-primary">
+                           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp; CVS
+                        </button>
+                     </div>
+                  </form>
+             </div>
+            
+			   
+			   
+			   
+			   <div class="row">
+                  <div class="col-sm-12">
+                     <h3>Libro Mayor:</h3>
+                  </div>
+               </div>
+			      <div class="row">
+					<div class="col-sm-12">
+                  	<form action="" method="post" target="_blank" name="f_asiento" id="f_asiento" class="form"> 
+			   			<input class="form-control" id='codsubcuenta_text' name='codsubcuenta_text' type='text'
+                         onclick="show_buscar_subcuentas('{$value->codejercicio}')"
+                         onkeyup="show_buscar_subcuentas('{$value->codejercicio}')" style="width:200px"
+                         autocomplete='off' placeholder='Seleccionar Subcuenta'/>
+			   		</form>
+               		</div>
+				</div>
+			   
+               <div class="row">
+                  <div class="col-sm-12">
+                     <h3>Balance de sumas y saldos:</h3>
+                  </div>
+               </div>
+			   
+			
+				
+               <div class="row">
+                  <form action="{$fsc->url()}" method="post" target="_blank" class="form">
+                     <input type="hidden" name="codejercicio" value="{$value->codejercicio}"/>
+					 <input type="hidden" name="balance_ss" value="1"/>
+					 <input type="hidden" name="tipo" value="4"/>
+                     <div class="col-sm-2">
+                        <div class="form-group">
+                           Desde:
+                           <input type="text" name="desde" value="{$value->fechainicio}" onClick="blur()" class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" maxlength="10"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-2">
+                        <div class="form-group">
+                           Hasta:
+                           <input type="text" name="hasta" value="{$value->fechafin}" onClick="blur()" class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" maxlength="10"/>
+                        </div>
+                     </div>
+                    
+                     <div class="col-sm-2">
+                        <br/>
+                        <button type="submit" class="btn btn-sm btn-primary">
+                           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp; Mostrar
+                        </button>
+                     </div>
+                  </form>
+               </div>
+			   <div class="row">
+                  <form action="{$fsc->url()}" method="post" target="_blank" class="form">
+                     <input type="hidden" name="codejercicio" value="{$value->codejercicio}"/>
+					 <input type="hidden" name="balance_cvs" value="1"/>
+					 <input type="hidden" name="tipo" value="4"/>
+                     <div class="col-sm-2">
+                        <div class="form-group">
+                           Desde:
+                           <input type="text" name="desde" value="{$value->fechainicio}" onClick="blur()" class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" maxlength="10"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-2">
+                        <div class="form-group">
+                           Hasta:
+                           <input type="text" name="hasta" value="{$value->fechafin}" onClick="blur()" class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" maxlength="10"/>
+                        </div>
+                     </div>
+                    
+                     <div class="col-sm-2">
+                        <br/>
+                        <button type="submit" class="btn btn-sm btn-primary">
+                           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp; CVS
+                        </button>
+                     </div>
+                  </form>
+               </div>
+			   
+			   
+			   
+			   
+            </div>
+         </div>
+      </div>
+   </div>
+   {/loop}
+</div>
+
+<form class="form" role="form" name="f_buscar_subcuentas">
+   <input type="hidden" name="fecha"/>
+   <input type="hidden" name="tipo"/>
+   <input type="hidden" name="numlinea"/>
+   <input type="hidden" name="codejercicio" id="codejercicio" />
+   <div class="modal" id="modal_subcuentas">
+      <div class="modal-dialog" style="width: 99%; max-width: 1000px;">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">Buscar subcuenta</h4>
+            </div>
+            <div class="modal-body">
+               <div class="input-group">
+                  <input class="form-control" type="text" name="query" onkeyup="buscar_subcuentas();" autocomplete="off" autofocus />
+                  
+               </div>
+            </div>
+            <div id="subcuentas"></div>
+         </div>
+      </div>
+   </div>
+</form>
+
+
+
+
+<script type="text/javascript">
+    function show_buscar_subcuentas(cod_ejer)
+   {
+   		document.f_buscar_subcuentas.codejercicio.value = cod_ejer;
+      $("#subcuentas").html('');
+	  document.f_buscar_subcuentas.query.value = '';
+      $("#modal_subcuentas").modal('show');
+        document.f_buscar_subcuentas.query.focus();
+   }
+   
+  function genera_cvs()
+  {
+  var libro_diario = 2;
+  var codejercicio = document.getElementById('codejercicio_cvs').value;
+  var desde = document.getElementById('desde_cvs').value;
+  var hasta = document.getElementById('hasta_cvs').value;
+   window.location.href = 'index.php?page=informe_contabilidad&libro_diario='+libro_diario+'&codejercicio='+codejercicio+'&desde='+desde+'&hasta='+hasta;
+ 
+  
+  }
+   
+
+      function buscar_subcuentas()
+   {
+      if(document.f_buscar_subcuentas.query.value == '')
+      {
+         $("#subcuentas").html('');
+      }
+      else
+      {
+         var datos = 'query='+document.f_buscar_subcuentas.query.value;
+         datos += "&codejer="+document.f_buscar_subcuentas.codejercicio.value;
+         $.ajax({
+            type: 'POST',
+            url: '{$fsc->url()}',
+            dataType: 'html',
+            data: datos,
+            success: function(datos) {
+               var re = /<!--(.*?)-->/g;
+               var m = re.exec( datos );
+               if( m[1] == document.f_buscar_subcuentas.query.value )
+               {
+                  $("#subcuentas").html(datos);
+               }
+            }
+         });
+      }
+   }
+   
+   function select_subcuenta(idsubcuenta, saldo, descripcion,alias)
+   {
+       window.location.href = "{$fsc->ppage->url()}&idsubcuenta="+idsubcuenta+"&modo=0}";
+   }
+ 
+   
+   </script>
+

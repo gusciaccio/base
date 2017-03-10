@@ -1,0 +1,188 @@
+{include="header"}
+
+<script type="text/javascript">
+   $(document).ready(function() {
+      document.f_custom_search.query.focus();
+   });
+   
+   $(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+     
+   
+</script>
+
+<div class="container-fluid" style="margin-top: 10px;">
+   <div class="row">
+      <div class="col-sm-3 col-xs-6">
+         <div class="btn-group hidden-xs">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+            {if="$fsc->page->is_default()"}
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {else}
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {/if}
+         </div>
+         <div class="btn-group">
+            <a class="btn btn-sm btn-success" href="index.php?page=contabilidad_nuevo_asiento">
+               <span class="glyphicon glyphicon-plus"></span>
+               <span class="hidden-xs">&nbsp; Nuevo</span>
+            </a>
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&renumerar=TRUE">
+               <span class="glyphicon glyphicon-sort-by-attributes"></span> &nbsp; Renumerar
+            </a>
+            {loop="$fsc->extensions"}
+               {if="$value->type=='button'"}
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+               {/if}
+            {/loop}
+         </div>
+      </div>
+	  <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+      <div class="col-sm-2 col-xs-6 text-left">
+         <h2 style="margin-top: 0px; margin-left:0px">Asientos</h2>
+      </div>
+	  <div class="col-sm-2 col-xs-6 text-left">
+        <input type="text" name="desde" onClick="blur()"  class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" placeholder="Desde"/> 
+      </div>
+	  <div class="col-sm-2 col-xs-6 text-left">
+        <input type="text" name="hasta" onClick="blur()"   class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" placeholder="Hasta"/> 
+      </div>
+	   <div class="col-sm-2 col-xs-4">
+	   
+         <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+		</div>
+		<div class="col-sm-1 col-xs-1 "> 
+               <span class="input-group-btn">
+                  <button class="btn btn-primary hidden-sm" type="submit">
+                     <span class="glyphicon glyphicon-search"></span>
+                  </button>
+               </span>
+      </div>
+	  
+		
+         </form>
+         <div class="visible-xs"><br/></div>
+      </div>
+   </div>
+</div>
+
+{if="$fsc->query!='' || ($fsc->desde && $fsc->hasta)"}
+<ul class="nav nav-tabs" role="tablist">
+   <li class="active">
+      <a href="#">
+         <span class="glyphicon glyphicon-search"></span>
+         <span class="hidden-xs">&nbsp; Todos (Mayorizados y No Mayorizados)</span>
+      </a>
+   </li>
+</ul>
+{else}
+<ul class="nav nav-tabs" role="tablist">
+   <li{if="!isset($_GET['descuadrados']) && !isset($_GET['mayorizados'])"} class="active"{/if}>
+      <a href="{$fsc->url()}">
+         No Mayorizados <span class="badge">{$fsc->total_asientos_no_mayor()}</span>
+      </a>
+   </li>
+   <li{if="isset($_GET['descuadrados'])"} class="active"{/if}>
+      <a href="{$fsc->url()}&descuadrados=TRUE">
+        {if="$fsc->total_descuadrados()>0"} <span class="glyphicon glyphicon-exclamation-sign" style="color:#FF0000" aria-hidden="true"></span>
+		{else}
+		<span class="glyphicon  aria-hidden="true"></span>
+		{/if}
+         <span class="hidden-xs">&nbsp; Descuadrados</span><span class="badge">{$fsc->total_descuadrados()}</span>
+      </a>
+   </li>
+   <li{if="isset($_GET['mayorizados'])"} class="active"{/if}>
+      <a href="{$fsc->url()}&mayorizados=TRUE">
+         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Mayorizados</span><span class="badge">{$fsc->total_asientos_mayor()}</span>
+      </a>
+   </li>
+</ul>
+{/if}
+
+<ul class="pager">
+   {if="$fsc->anterior_url()!=''"}
+   <li class="previous">
+      <a href="{$fsc->anterior_url()}">
+         <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
+      </a>
+   </li>
+   {/if}
+   
+   {if="$fsc->siguiente_url()!=''"}
+   <li class="next">
+      <a href="{$fsc->siguiente_url()}">
+         Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
+      </a>
+   </li>
+   {/if}
+</ul>
+<div class="table-responsive">
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left" style="width:20px">Mayor</th>
+            <th class="text-left">Ejercicio + Número</th>
+            <th class="text-left">Concepto</th>
+            <th class="text-right">Importe</th>
+            <th class="text-right">Fecha</th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
+	  {if="$fsc->asiento->test_asiento_correcto($value->idasiento)==1"}
+      <tr class="clickableRow{if="$value->importe<=0"} bg-warning{/if}" href="{$value->url()}&solapa={$fsc->solapa}">
+	   {else}
+	  <tr style="background-color:#FDC4B5" class="clickableRow{if="$value->importe<=0"} bg-warning{/if}" href="{$value->url()}&solapa={$fsc->solapa}">
+	  {/if}
+         <td class="text-left">
+            {if="$value->editable"}
+            <span class="glyphicon glyphicon-pencil" title="Editable - No Mayorizado"></span>
+			{else}
+			<span class="glyphicon glyphicon-ok" title="Mayorizado"></span>
+            {/if}
+         </td>
+		 <td>{$value->codejercicio}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="{$value->url()}">{$value->numero}</a></td>
+         <td>{$value->tipodocumento}</td>
+         <td class="text-right">{$fsc->show_precio($value->importe)}</td>
+         <td class="text-right">{$value->fecha}</td>
+      </tr>
+      {else}
+      <tr class="bg-warning">
+         <td></td>
+         <td colspan="5">Ningún asiento encontrado. Pulsa <b>Nuevo</b> para crear uno.</td>
+      </tr>
+      {/loop}
+   </table>
+</div>
+
+<ul class="pager">
+   {if="$fsc->anterior_url()!=''"}
+   <li class="previous">
+      <a href="{$fsc->anterior_url()}">
+         <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
+      </a>
+   </li>
+   {/if}
+   
+   {if="$fsc->siguiente_url()!=''"}
+   <li class="next">
+      <a href="{$fsc->siguiente_url()}">
+         Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
+      </a>
+   </li>
+   {/if}
+</ul>
+
+{include="footer"}

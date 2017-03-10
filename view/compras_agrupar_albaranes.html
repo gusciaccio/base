@@ -1,0 +1,383 @@
+{include="header"}
+
+<script type="text/javascript">
+   function fs_marcar_todo()
+   {
+      $("#f_agrupar_pro input[name='idalbaran[]']").prop('checked', true);
+	  sumatotal();
+   }
+   function fs_marcar_nada()
+   {
+      $("#f_agrupar_pro input[name='idalbaran[]']").prop('checked', false);
+	  sumatotal();
+   }
+   $(document).ready(function() {
+      document.f_agrupar_alb.ac_proveedor.focus();
+      $("#ac_proveedor").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_proveedor',
+         onSelect: function(suggestion) {
+            if(suggestion)
+            {
+               if(document.f_agrupar_alb.codproveedor.value != suggestion.data && suggestion.data != '')
+               {
+                  document.f_agrupar_alb.codproveedor.value = suggestion.data;
+               }
+            }
+         }
+      });
+	   $(document).ready(function() {
+ 	  $("#b_genfactura").click(function(event) {	  
+         event.preventDefault();
+         $("#modal_genfactura").modal('show');
+      });
+  });
+	  
+   });
+   
+   
+    function rellenar(estado,val1,cant){
+	cadcero='';
+	for(i=0;i<(cant-val1.length);i++){
+	cadcero+='0';
+	}
+	estado.value=cadcero+val1;
+	}
+   
+   
+   	function verificar_factura()
+   {
+
+ var existefact = 0;
+ {loop="$fsc->verif_factura"};
+ if( document.getElementById('ac_proveedor').value == '{$value->nombre}')
+ {
+ 	if( document.getElementById('comprobante').value+'/'+document.getElementById('numcorto').value+'-'+document.getElementById('numlargo').value == '{$value->numproveedor}')
+	 {
+	  	
+	  var existefact = 1;  	 
+	  }
+ }
+ {/loop}
+   
+ 	  var a=document.getElementById('numcorto').value;
+	  a=a.trim();
+	  if(a.length!=4 || a=='0000')alert('Debe completar el campo de 4 digitos');
+	  else
+	  {
+		  var a=document.getElementById('numlargo').value;
+		  a=a.trim();
+		  if(a.length!=8 || a=='00000000')alert('Debe completar el campo de 8 digitos');
+		  else
+		  {
+			  if(existefact == 1)
+			  {
+			  alert('La factura ya existe!');
+			  }
+			  else 
+				{
+					document.getElementById('numfactproveedor').value = document.getElementById('comprobante').value+'/'+document.getElementById('numcorto').value+'-'+document.getElementById('numlargo').value;
+					
+					return document.f_agrupar_pro.submit();
+				}
+		  }
+	  }
+	   
+   }
+   
+   
+		$(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+   
+</script>
+
+
+
+<form name="f_agrupar_alb" action="{$fsc->url()}" method="post" class="form">
+   {if="$fsc->proveedor"}
+   <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
+   {else}
+   <input type="hidden" name="codproveedor"/>
+   {/if}
+   <div class="container-fluid" style="margin-top: 10px;">
+      <div class="row">
+         <div class="col-xs-4">
+            <div class="btn-group hidden-xs">
+               <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+            </div>
+            <div class="btn-group">
+               <a href="index.php?page=compras_facturas" class="btn btn-sm btn-default">
+                  <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; <span class="text-capitalize">{#FS_ALBARANES#}</span>
+               </a>
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+                  {/if}
+               {/loop}
+			   
+            </div>
+         </div>
+         <div class="col-xs-8 text-right">
+            <h2 style="margin-top: 0px;">Agrupar {#FS_ALBARANES#}</h2>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-md-4">
+            <div class="form-group">
+               Proveedor:
+               <div class="input-group">
+                  {if="$fsc->proveedor"}
+                  <input class="form-control" type="text" name="ac_proveedor" value="{$fsc->proveedor->razonsocial}" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
+                  {else}
+                  <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
+                  {/if}
+                  <span class="input-group-btn">
+                     <button class="btn btn-default" type="button" onclick="document.f_agrupar_pre.ac_proveedor.value='';document.f_agrupar_pre.ac_proveedor.focus();">
+                        <span class="glyphicon glyphicon-edit"></span>
+                     </button>
+                  </span>
+               </div>
+            </div>
+         </div>
+         <div class="col-md-2">
+            Serie:
+            <select name="serie" class="form-control">
+            {loop="$fsc->serie->all()"}
+				   {if="$value->codserie==$fsc->codserie"}
+				   <option value="{$value->codserie}" selected='selected'>{$value->descripcion}</option>
+				   {else}
+				   <option value="{$value->codserie}">{$value->descripcion}</option>
+				   {/if}
+				{/loop}
+            </select>
+         </div>
+         <div class="col-md-3">
+            <div class="form-group">
+               Desde:
+               <input type="text" name="desde" class="form-control calendario"  data-date-format="dd-mm-yyyy"  value="{$fsc->desde}"/>
+            </div>
+         </div>
+         <div class="col-md-3">
+            <div class="form-group">
+               Hasta:
+               <input type="text" name="hasta" class="form-control calendario" data-date-format="dd-mm-yyyy"  value="{$fsc->hasta}"/>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-md-12">
+            <button type="submit" class="btn btn-sm btn-primary" onclick="this.disabled=true;this.form.submit();">
+               <span class="glyphicon glyphicon-search"></span> &nbsp; Buscar
+            </button>
+         </div>
+      </div>
+   </div>
+</form>
+
+{if="$fsc->resultados"}
+<form id="f_agrupar_pro" name="f_agrupar_pro" action="{$fsc->url()}" method="post" class="form">
+   <input type="hidden" name="petition_id" value="{$fsc->random_string()}"/>
+   <div class="table-responsive">
+      <table class="table table-hover">
+         <thead>
+            <tr>
+				<th class="text-left"></th>
+               <th class="text-left">Comprobante</th>
+			   <th class="text-left">Número</th>
+               <th class="text-left">Observaciones</th>
+               <th class="text-right">Neto</th>
+               <th class="text-right">Total</th>
+               <th class="text-right">Fecha</th>
+            </tr>
+         </thead>
+		 
+		  
+         {loop="$fsc->resultados"}
+		
+		 {if="substr($value->numremito, 0,1)=='R'"}
+         <tr{if="$value->total<0"} class="bg-warning"{/if} ">
+		
+            <td>
+               <div>
+                  <input type="checkbox" name="idalbaran[]"  id="idalbaran_{$counter}" value="{$value->idalbaran}" onclick="sumatotal()" checked="checked"/>&nbsp;&nbsp;
+				 </div>  
+			</td>	  
+			<td>
+				  <a href="{$value->url()}">
+                  		 {if="substr($value->numremito, 0,1)=='R'"}REMITO{/if}
+				  </a>
+				   
+              
+            </td>
+			<td>
+			 <a href="{$value->url()}">
+			 {$numcompr=substr($value->numremito, 2)}
+			 {$numcompr}
+			 </td></a> 
+            <td>{$value->observaciones_resume()}</td>
+            <td class="text-right">{$fsc->show_precio($value->neto, $value->coddivisa)}</td>
+			<input type="hidden" id="subneto_{$counter}" value="{$value->neto}" />
+			<td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
+			<input type="hidden" id="subtot_{$counter}" value="{$value->neto}" />
+            <td class="text-right">{$value->fecha}</td>
+         </tr>
+		 {/if}
+         {/loop}
+         <tr>
+            <td colspan="2"></td>
+			<td colspan="2"></td>
+            <td class="text-right"><b><input type="text" name="netremit" id="netremit"   readonly="true"/></b></td>
+            <td class="text-right"><b><input type="text" name="totremit" id="totremit"  readonly="true " /></b></td>
+            <td></td>
+         </tr>
+      </table>
+   </div>
+   
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-md-4">
+            <div class="btn-group">
+               <button class="btn btn-sm btn-default" type="button" onclick="fs_marcar_todo()" title="Marcar todo">
+                  <span class="glyphicon glyphicon-check"></span>
+               </button>
+               <button class="btn btn-sm btn-default" type="button" onclick="fs_marcar_nada()" title="Desmarcar todo">
+                  <span class="glyphicon glyphicon-unchecked"></span>
+               </button>
+            </div>
+         </div>
+         <div class="col-md-4 text-center">
+
+               <input type="hidden" name="individuales" value="0"/>
+
+         </div>
+         <div class="col-md-4 text-right">
+				<a id="b_genfactura" class="btn btn-sm btn-primary" href="#">
+					  <span class="glyphicon glyphicon-paperclip"></span>
+					  <span class="hidden-xs">&nbsp; Generar Factura</span>
+				</a>
+         </div>
+      </div>
+   </div>
+   
+   
+     <div class="modal fade" id="modal_genfactura">
+      <div class="modal-dialog">
+         <div class="modal-content">
+		  <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">Colocar Nº de Comprobante</h4>
+            </div>
+            <div class="modal-body">
+               <div class="form-group">
+                  <div class="input-group">
+				  <input type="hidden" name="facturar" id="facturar" value="FALSE"/>
+                     <input type="hidden" name="nombreproveedor" id="nombreproveedor" value="{$fsc->albaran->nombre}" />
+					 <input type="hidden" name="proveedor" id="proveedor" value="{$fsc->albaran-> codproveedor}" />
+					 <input type="hidden" name="delete" value="{$fsc->albaran->idalbaran}"/>
+				   <input type="hidden" name="numfactproveedor" id="numfactproveedor" value="" />
+				   <input type="hidden" name="autorizar_factura" value="{$fsc->autorizar_factura}"/>
+                    Proveedor :<strong style="size:14px"> &nbsp;&nbsp;{$fsc->proveedor->razonsocial}</strong>
+                  </div>
+				  <br />
+
+				<div class="form-group">
+				 <table class="table table-condensed">
+                  <thead>
+                     <tr>
+                        <th class="text-left">Tipo Comprobante</th>
+                        <th class="text-left"> </th>
+						
+                        <th class="text-left">Número de comprobante del Proveedor</th>
+                     </tr>
+                  </thead>
+				  <tbody>
+                     <tr class="bg-info">
+					
+                        <td>
+					<select name="comprobante" id="comprobante" class="form-control" style="width:auto"  >
+						   <option value="B" selected="selected">FACTURA B</option>
+						   <option value="F" >FACTURA C</option>
+						   <option value="T" >TICKET FACTURA</option>
+						   <option value="Q" >TICKET CRÉDITO</option>
+						   <option value="C" >NOTA DE CRÉDITO</option>
+						   <option value="D" >NOTA DE DÉBITO</option>
+						</select>	
+						</td>
+						<td>
+						<input id="numcorto" name="numcorto" class="form-control" style="width:60px" type="text" autocomplete="on" maxlength="4" onblur="rellenar(this,this.value,4)" onClick="this.setSelectionRange(0, this.value.length)" />
+						</td>
+						
+						<td>
+						<input id="numlargo" name="numlargo" class="form-control" style="width:auto" type="text" autocomplete="on" maxlength="8"  onblur="rellenar(this,this.value,8)" onClick="this.setSelectionRange(0, this.value.length)" />
+						</td>
+
+					  
+                     </tr>
+                  </tbody>
+               </table>
+               	</div>
+				 <span class="input-group-btn">
+				
+                        <button class="btn btn-primary" id="continuarfact" type="button"  onclick="verificar_factura();">
+                           <span class="glyphicon glyphicon-share-alt">Continuar</span>
+                        </button>
+                     </span>
+			   
+               </div>
+            </div>
+         </div>
+      </div>
+   </div> 
+   
+   
+   
+   
+</form>
+{/if}
+
+
+ <script type="text/javascript">  
+    var cant = 0;
+    var totneto = 0; 
+	var tottot = 0;
+         {loop="$fsc->resultados"};
+		 {if="substr($value->numremito, 0,1)=='R'"};
+		 
+		    totneto += parseFloat(document.getElementById('subneto_'+cant).value);
+   			tottot += parseFloat(document.getElementById('subtot_'+cant).value);
+		cant++;	
+		 {/if};
+		 {/loop};
+    document.getElementById('netremit').value = totneto.toFixed(2);
+    document.getElementById('totremit').value = tottot.toFixed(2);
+   
+
+  
+   function sumatotal()
+   {
+  	var totneto = 0; 
+	var tottot = 0;
+   for(var i=0; i< cant;i++)
+   {
+   if( document.getElementById('idalbaran_'+i).checked == true)
+   {
+   totneto += parseFloat(document.getElementById('subneto_'+i).value);
+   tottot += parseFloat(document.getElementById('subtot_'+i).value);
+   }
+   }
+  
+   document.getElementById('netremit').value = totneto.toFixed(2);
+   document.getElementById('totremit').value = tottot.toFixed(2);
+   }
+</script>
+
+
+{include="footer"}
